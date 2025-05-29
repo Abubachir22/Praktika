@@ -15,10 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
             encryptedAlphabet.push(alphabet[(i + 13) % halfLength]);
         }
         
-        document.getElementById('alphabetDisplay').innerHTML = `
-            <p><strong>Обычный:</strong> ${normalAlphabet.join(' ')}</p>
-            <p><strong>Зашифрованный:</strong> ${encryptedAlphabet.join(' ')}</p>
-            `;
     }
     displayAlphabets();
     const inputText = document.getElementById('inputText');
