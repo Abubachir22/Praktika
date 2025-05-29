@@ -1,63 +1,19 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-
-const PORT = 3000;
-const STATIC_FOLDER = path.join(__dirname, 'public');
-
-const server = http.createServer((req, res) => {
-    let filePath = path.join(STATIC_FOLDER, req.url === '/' ? 'index.html' : req.url);
-    
-    const extname = path.extname(filePath);
-    let contentType = 'text/html';
-    
-    switch (extname) {
-        case '.js':
-            contentType = 'text/javascript';
-            break;
-        case '.css':
-            contentType = 'text/css';
-            break;
-    }
-
-    fs.access(filePath, fs.constants.F_OK, (err) => {
+var http = require('http');
+var fs = require('fs');
+var path = require('path');
+var server = http.createServer(function(req, res) {
+    var file = req.url === '/' ? 'index.html' : req.url;
+    var fullPath = path.join(__dirname, 'public', file);
+    fs.readFile(fullPath, function(err, data) {
         if (err) {
-            serve404();
+            fs.readFile(path.join(__dirname, 'public', '404.html'), function(_, notFoundData) {
+                res.end(notFoundData);
+            });
         } else {
-            serveFile(filePath, contentType);
+            res.end(data);
         }
     });
-
-    function serveFile(filePath, contentType) {
-        fs.readFile(filePath, (err, content) => {
-            if (err) {
-                if (err.code === 'ENOENT') {
-                    serve404();
-                } else {
-                    res.writeHead(500);
-                    res.end(`Server Error: ${err.code}`);
-                }
-            } else {
-                res.writeHead(200, { 'Content-Type': contentType });
-                res.end(content, 'utf-8');
-            }
-        });
-    }
-
-    function serve404() {
-        const notFoundPath = path.join(STATIC_FOLDER, '404.html');
-        fs.readFile(notFoundPath, (err, content) => {
-            if (err) {
-                res.writeHead(404, { 'Content-Type': 'text/plain' });
-                res.end('404 Not Found');
-            } else {
-                res.writeHead(404, { 'Content-Type': 'text/html' });
-                res.end(content, 'utf-8');
-            }
-        });
-    }
 });
-
-server.listen(PORT, () => {
-    console.log(`Сервер запущен на http://localhost:${PORT}/`);
+server.listen(3000, function() {
+    console.log('Сервер работает: http://localhost:3000/');
 });
